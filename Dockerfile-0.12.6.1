@@ -23,6 +23,7 @@ RUN set -x \
     xfonts-75dpi \
     xfonts-base \
     fonts-lato \
+    tini \
   && wget -q -O /tmp/wkhtmltox.deb https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb \
   && echo "800eb1c699d07238fee77bf9df1556964f00ffcf /tmp/wkhtmltox.deb" | sha1sum -c - \
   && dpkg -i /tmp/wkhtmltox.deb \
@@ -40,4 +41,4 @@ ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
 
 EXPOSE 8080
-CMD ["/usr/local/bin/kwkhtmltopdf_server"]
+CMD ["/usr/bin/tini", "--", "/usr/local/bin/kwkhtmltopdf_server"]
