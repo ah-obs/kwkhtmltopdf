@@ -68,6 +68,21 @@ func httpAbort(w http.ResponseWriter, err error) {
 	c.Close()
 }
 
+func redactArgs(args []string) []string {
+	redacted := make([]string, 0, len(args))
+	i := 0
+	for i < len(args) {
+		if args[i] == "--cookie" && i+2 < len(args) {
+			redacted = append(redacted, args[i], args[i+1], "***")
+			i += 3
+		} else {
+			redacted = append(redacted, args[i])
+			i++
+		}
+	}
+	return redacted
+}
+
 func handler(w http.ResponseWriter, r *http.Request) {
 
 	if r.URL.Path == "/status" {
@@ -151,7 +166,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		args = append(args, "-")
 	}
 
-	log.Println(args, "starting") // TODO better logging, hide sensitve options
+	var redactedArgs = redactArgs(args)
+
+	log.Println(redactedArgs, "starting")
 
 	cmd := exec.Command(wkhtmltopdfBin(), args...)
 	cmdStdout, err := cmd.StdoutPipe()
@@ -177,7 +194,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(args, "success")
+	log.Println(redactedArgs, "success")
 }
 
 func main() {
